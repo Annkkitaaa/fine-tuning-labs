@@ -163,5 +163,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Your Name] - Lead Developer
 
 ## 📬 Contact
-- Project Link: [https://github.com/yourusername/Fine-ML](https://github.com/yourusername/Fine-ML)
-- Email: [your.email@example.com]
+- Project Link: [https://github.com/Annkkitaaa/Fine-ML](https://github.com/Annkkitaaa/Fine-ML)
+- Email: [ankitasingh15.102@gmail.com]
