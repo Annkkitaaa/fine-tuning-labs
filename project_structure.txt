@@ -1,0 +1,52 @@
+fine_tuning_labs/
+├── backend/
+│   ├── requirements.txt
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   ├── routes.py
+│   │   │   └── endpoints/
+│   │   │       ├── __init__.py
+│   │   │       ├── model_endpoints.py
+│   │   │       └── training_endpoints.py
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   ├── fine_tuning.py
+│   │   │   ├── model_manager.py
+│   │   │   └── training_manager.py
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py
+│   │   │   └── training.py
+│   │   └── utils/
+│   │       ├── __init__.py
+│   │       ├── data_processing.py
+│   │       └── model_utils.py
+├── frontend/
+│   ├── package.json
+│   ├── src/
+│   │   ├── App.js
+│   │   ├── index.js
+│   │   ├── components/
+│   │   │   ├── ModelUpload.js
+│   │   │   ├── ConfigPanel.js
+│   │   │   └── TrainingProgress.js
+│   │   ├── pages/
+│   │   │   ├── Dashboard.js
+│   │   │   ├── Models.js
+│   │   │   └── Training.js
+│   │   └── utils/
+│   │       ├── api.js
+│   │       └── helpers.js
+├── tests/
+│   ├── backend/
+│   │   ├── test_fine_tuning.py
+│   │   └── test_model_manager.py
+│   └── frontend/
+│       ├── components.test.js
+│       └── utils.test.js
+└── docs/
+    ├── API.md
+    ├── SETUP.md
+    └── USAGE.md
