@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+ backend:
+   build: 
+     context: ./backend
+     dockerfile: Dockerfile
+   ports:
+     - "8000:8000"
+   volumes:
+     - ./backend:/app
+     - model_data:/app/models
+   environment:
+     - PYTHONPATH=/app
+     - SECRET_KEY=${SECRET_KEY}
+     - DATABASE_URL=${DATABASE_URL}
+     - MODEL_STORAGE_PATH=/app/models
+   command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+   depends_on:
+     - mongodb
+
+ frontend:
+   build:
+     context: ./frontend
+     dockerfile: Dockerfile
+   ports:
+     - "3000:3000"
+   volumes:
+     - ./frontend:/app
+     - /app/node_modules
+   environment:
+     - REACT_APP_API_BASE=http://localhost:8000/api/v1
+   depends_on:
+     - backend
+
+ mongodb:
+   image: mongo:5.0
+   ports:
+     - "27017:27017"
+   volumes:
+     - mongodb_data:/data/db
+   environment:
+     - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASS}
+
+volumes:
+ mongodb_data:
+ model_data:
