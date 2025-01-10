@@ -1,27 +1,52 @@
-const API_BASE = process.env.REACT_APP_API_BASE || '/api/v1';
+import axios from 'axios';
+import { ModelConfig, TrainingConfig } from '../types';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+
+const axiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+// Add auth interceptor
+axiosInstance.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
 
 export const api = {
-  async uploadModel(file: File) {
-    const formData = new FormData();
-    formData.append('file', file);
-    const response = await fetch(`${API_BASE}/models/upload`, {
-      method: 'POST',
-      body: formData
-    });
-    return response.json();
-  },
+    // Model endpoints
+    async uploadModel(file: File, config: Partial<ModelConfig>) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('config', JSON.stringify(config));
+        return axiosInstance.post('/models/upload', formData);
+    },
 
-  async startTraining(config: any) {
-    const response = await fetch(`${API_BASE}/training/start`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(config)
-    });
-    return response.json();
-  },
+    async updateModelConfig(config: ModelConfig) {
+        return axiosInstance.put('/models/config', config);
+    },
 
-  async getMetrics(jobId: string) {
-    const response = await fetch(`${API_BASE}/metrics/${jobId}`);
-    return response.json();
-  }
+    // Training endpoints
+    async startTraining(config: TrainingConfig) {
+        return axiosInstance.post('/training/start', config);
+    },
+
+    async getTrainingStatus(jobId: string) {
+        return axiosInstance.get(`/training/status/${jobId}`);
+    },
+
+    async stopTraining(jobId: string) {
+        return axiosInstance.post(`/training/stop/${jobId}`);
+    },
+
+    // Metrics endpoints
+    async getMetrics(modelId: string) {
+        return axiosInstance.get(`/metrics/${modelId}`);
+    },
 };

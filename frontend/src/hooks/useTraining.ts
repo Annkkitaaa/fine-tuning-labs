@@ -1,25 +1,31 @@
 import { useState, useEffect } from 'react';
 import { TrainingStatus } from '../types';
+import { api } from '../services/api';
 
-export const useTraining = (jobId: string) => {
-  const [status, setStatus] = useState<TrainingStatus>({
-    status: 'idle',
-    progress: 0
-  });
+export function useTraining(jobId: string) {
+    const [status, setStatus] = useState<TrainingStatus>({
+        status: 'idle',
+        progress: 0
+    });
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      const response = await fetch(`/api/v1/training/status/${jobId}`);
-      const data = await response.json();
-      setStatus(data);
-      
-      if (data.status === 'completed' || data.status === 'failed') {
-        clearInterval(interval);
-      }
-    }, 1000);
+    useEffect(() => {
+        if (!jobId) return;
 
-    return () => clearInterval(interval);
-  }, [jobId]);
+        const pollInterval = setInterval(async () => {
+            try {
+                const response = await api.getTrainingStatus(jobId);
+                setStatus(response.data);
+                
+                if (['completed', 'failed'].includes(response.data.status)) {
+                    clearInterval(pollInterval);
+                }
+            } catch (error) {
+                console.error('Error fetching training status:', error);
+            }
+        }, 1000);
 
-  return status;
-};
+        return () => clearInterval(pollInterval);
+    }, [jobId]);
+
+    return status;
+}
