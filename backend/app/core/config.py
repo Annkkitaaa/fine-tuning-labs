@@ -1,6 +1,5 @@
 from typing import Optional, Dict, List
-from pydantic_settings import BaseSettings
-
+from pydantic import BaseSettings, validator
 from functools import lru_cache
 import os
 
@@ -12,13 +11,15 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     
     # Security Settings
-    SECRET_KEY: str = "your-secret-key-here"
+    SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     ALGORITHM: str = "HS256"
     ALLOWED_HOSTS: List[str] = ["*"]
     
     # Database Settings
-    MONGODB_URL: str = "mongodb://localhost:27017/"
+    MONGO_USER: str
+    MONGO_PASS: str
+    DATABASE_URL: str
     DATABASE_NAME: str = "fine_tuning_labs"
     
     # Model Storage Settings
@@ -36,28 +37,15 @@ class Settings(BaseSettings):
     SUPPORTED_FRAMEWORKS: List[str] = ["pytorch", "tensorflow", "scikit-learn"]
     DEFAULT_FRAMEWORK: str = "pytorch"
     
-    # Cache Settings
-    CACHE_TTL: int = 3600  # 1 hour in seconds
-    CACHE_BACKEND: str = "memory"
-    
-    # Logging Settings
-    LOG_LEVEL: str = "INFO"
-    LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    LOG_FILE: Optional[str] = "app.log"
-    
     # CORS Settings
     CORS_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:8000",
+        "https://fine-tuning-labs.vercel.app"  # Add your Vercel domain
     ]
     CORS_ALLOW_CREDENTIALS: bool = True
     CORS_ALLOW_METHODS: List[str] = ["*"]
     CORS_ALLOW_HEADERS: List[str] = ["*"]
-    
-    # Rate Limiting
-    RATE_LIMIT_ENABLED: bool = True
-    RATE_LIMIT_REQUESTS: int = 100
-    RATE_LIMIT_PERIOD: int = 60  # 1 minute
     
     # Model Configurations
     MODEL_CONFIGS: Dict[str, Dict] = {
@@ -78,48 +66,23 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
-        
-        # Additional environment file for different environments
-        @classmethod
-        def customise_sources(
-            cls,
-            init_settings,
-            env_settings,
-            file_secret_settings,
-        ):
-            env = os.getenv("ENVIRONMENT", "development")
-            return (
-                init_settings,
-                env_settings,
-                file_secret_settings,
-                f".env.{env}",
-            )
+
+    @validator("DATABASE_URL", pre=True)
+    def validate_database_url(cls, v: Optional[str], values: Dict) -> str:
+        if not v:
+            user = values.get("MONGO_USER")
+            password = values.get("MONGO_PASS")
+            if user and password:
+                return f"mongodb+srv://{user}:{password}@cluster0.mongodb.net/fine-tuning-labs?retryWrites=true&w=majority"
+        return v
 
 @lru_cache()
 def get_settings() -> Settings:
-    """
-    Get cached settings instance
-    """
+    """Get cached settings instance"""
     return Settings()
 
 # Create settings instance
 settings = get_settings()
-
-# Validation functions
-def validate_mongodb_url(url: str) -> bool:
-    """Validate MongoDB URL format"""
-    # Add validation logic here
-    return True
-
-def validate_file_size(size: int) -> bool:
-    """Validate file size is within limits"""
-    return 0 < size <= settings.MAX_MODEL_SIZE
-
-def get_framework_config(framework: str) -> Dict:
-    """Get configuration for specific framework"""
-    if framework not in settings.SUPPORTED_FRAMEWORKS:
-        raise ValueError(f"Unsupported framework: {framework}")
-    return settings.MODEL_CONFIGS[framework]
 
 # Environment-specific configurations
 def is_development() -> bool:
@@ -131,6 +94,4 @@ def is_production() -> bool:
 # Initialize environment-specific settings
 if is_production():
     settings.DEBUG = False
-    settings.LOG_LEVEL = "ERROR"
-    settings.CORS_ORIGINS = ["https://your-production-domain.com"]
-    settings.RATE_LIMIT_REQUESTS = 50
+    settings.CORS_ORIGINS.append("https://fine-tuning-labs.vercel.app")  # Add your Vercel domain
