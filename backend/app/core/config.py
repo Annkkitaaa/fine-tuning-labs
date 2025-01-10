@@ -91,7 +91,3 @@ def is_development() -> bool:
 def is_production() -> bool:
     return os.getenv("ENVIRONMENT", "development") == "production"
 
-# Initialize environment-specific settings
-if is_production():
-    settings.DEBUG = False
-    settings.CORS_ORIGINS.append("https://fine-tuning-labs.vercel.app")  # Add your Vercel domain
