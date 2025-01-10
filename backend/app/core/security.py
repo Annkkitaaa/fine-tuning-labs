@@ -3,13 +3,14 @@ from typing import Optional, Union, Dict, List
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status, Request
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, EmailStr, validator
 import logging
 from .config import settings
 
 # Configure logging
-logging.basicConfig(level=settings.LOG_LEVEL)
+log_level = getattr(settings, "LOG_LEVEL", "INFO")  # Default to "INFO" if not set
+logging.basicConfig(level=log_level)
 logger = logging.getLogger(__name__)
 
 # Security contexts
@@ -96,7 +97,10 @@ def create_access_token(
         return encoded_jwt
     except Exception as e:
         logger.error(f"Error creating access token: {str(e)}")
-        raise
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error creating access token"
+        )
 
 # Authentication Functions
 async def authenticate_user(username: str, password: str) -> Optional[UserInDB]:
