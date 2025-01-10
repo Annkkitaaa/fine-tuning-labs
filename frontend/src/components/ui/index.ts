@@ -1,5 +1,6 @@
-export * from './Card';
-export * from './Select';
-export * from './Input';
-export * from './Progress';
-export * from './Button';
+export { Card } from './Card';
+export { Input } from './Input';
+export { Select} from './Select';
+export { Switch } from './Switch';
+export { Progress } from './Progress';
+export { Button } from './Button';

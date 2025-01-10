@@ -4,8 +4,7 @@
 export interface ModelConfig {
     framework: 'pytorch' | 'tensorflow' | 'sklearn';
     modelType: string;
-    customPath?: string;
-}
+  }
 
 // Training Configuration Types
 export interface TrainingConfig {

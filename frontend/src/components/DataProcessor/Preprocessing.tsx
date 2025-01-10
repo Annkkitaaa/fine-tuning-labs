@@ -1,46 +1,47 @@
 import React, { useState } from 'react';
-import { Card, Checkbox } from '@/components/ui';
-
-interface PreprocessingOptions {
-    normalize: boolean;
-    removeOutliers: boolean;
-    augmentData: boolean;
-}
+import { Card } from '@/components/ui/Card';
+import { Switch } from '@/components/ui/Switch';
 
 export const Preprocessing: React.FC = () => {
-    const [options, setOptions] = useState<PreprocessingOptions>({
-        normalize: false,
-        removeOutliers: false,
-        augmentData: false
-    });
+  const [settings, setSettings] = useState({
+    removeStopwords: true,
+    lowercase: true,
+    stemming: false,
+    removeSpecialChars: true
+  });
 
-    const handleOptionChange = (key: keyof PreprocessingOptions) => {
-        setOptions(prev => ({
-            ...prev,
-            [key]: !prev[key]
-        }));
-    };
+  const handleSettingChange = (setting: keyof typeof settings) => {
+    setSettings(prev => ({
+      ...prev,
+      [setting]: !prev[setting]
+    }));
+  };
 
-    return (
-        <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Preprocessing Options</h2>
-            <div className="space-y-4">
-                <Checkbox
-                    label="Normalize Data"
-                    checked={options.normalize}
-                    onChange={() => handleOptionChange('normalize')}
-                />
-                <Checkbox
-                    label="Remove Outliers"
-                    checked={options.removeOutliers}
-                    onChange={() => handleOptionChange('removeOutliers')}
-                />
-                <Checkbox
-                    label="Data Augmentation"
-                    checked={options.augmentData}
-                    onChange={() => handleOptionChange('augmentData')}
-                />
-            </div>
-        </Card>
-    );
+  return (
+    <Card>
+      <h2 className="text-lg font-semibold mb-4">Preprocessing Settings</h2>
+      <div className="space-y-4">
+        <Switch
+          checked={settings.removeStopwords}
+          onChange={() => handleSettingChange('removeStopwords')}
+          label="Remove Stopwords"
+        />
+        <Switch
+          checked={settings.lowercase}
+          onChange={() => handleSettingChange('lowercase')}
+          label="Convert to Lowercase"
+        />
+        <Switch
+          checked={settings.stemming}
+          onChange={() => handleSettingChange('stemming')}
+          label="Apply Stemming"
+        />
+        <Switch
+          checked={settings.removeSpecialChars}
+          onChange={() => handleSettingChange('removeSpecialChars')}
+          label="Remove Special Characters"
+        />
+      </div>
+    </Card>
+  );
 };
