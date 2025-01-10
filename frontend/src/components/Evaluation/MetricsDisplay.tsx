@@ -1,61 +1,30 @@
-import React, { useState } from 'react';
-import { Card, Button, Input, Progress } from '@/components/ui';
+import React from 'react';
+import { Card } from '@/components/ui';
 
-export const TrainingPanel = () => {
-  const [config, setConfig] = useState({
-    epochs: 10,
-    batchSize: 32,
-    learningRate: 0.001
-  });
-  const [isTraining, setIsTraining] = useState(false);
-  const [progress, setProgress] = useState(0);
+interface Metric {
+  name: string;
+  value: number;
+}
 
-  const startTraining = async () => {
-    setIsTraining(true);
-    try {
-      const response = await fetch('/api/v1/training/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config)
-      });
-      // Handle response
-    } catch (error) {
-      console.error('Training error:', error);
-    }
-    setIsTraining(false);
-  };
+interface MetricsDisplayProps {
+  metrics: Metric[];
+}
 
+export const MetricsDisplay: React.FC<MetricsDisplayProps> = ({ metrics }) => {
   return (
-    <Card className="p-6 space-y-4">
-      <div className="grid grid-cols-3 gap-4">
-        <Input
-          label="Epochs"
-          type="number"
-          value={config.epochs}
-          onChange={(e) => setConfig({...config, epochs: parseInt(e.target.value)})}
-        />
-        <Input
-          label="Batch Size"
-          type="number"
-          value={config.batchSize}
-          onChange={(e) => setConfig({...config, batchSize: parseInt(e.target.value)})}
-        />
-        <Input
-          label="Learning Rate"
-          type="number"
-          value={config.learningRate}
-          onChange={(e) => setConfig({...config, learningRate: parseFloat(e.target.value)})}
-        />
-      </div>
-      <Button 
-        onClick={startTraining}
-        disabled={isTraining}
-        className="w-full"
-      >
-        {isTraining ? 'Training...' : 'Start Training'}
-      </Button>
-      {isTraining && (
-        <Progress value={progress} />
+    <Card className="p-6">
+      <h2 className="text-xl font-semibold mb-4">Model Metrics</h2>
+      {metrics.length === 0 ? (
+        <p className="text-gray-500">No metrics available yet</p>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {metrics.map((metric, index) => (
+            <div key={index} className="p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600">{metric.name}</p>
+              <p className="text-lg font-semibold">{metric.value}</p>
+            </div>
+          ))}
+        </div>
       )}
     </Card>
   );
